@@ -1,11 +1,12 @@
-name: Build and Publish nginx Container Image
+name: Build and Publish Image
 
 on:
   push:
     branches: [main]
   # Triggered by subsystems worflows
   repository_dispatch:
-    types: [trigger-iac]
+    types: 
+      - OPP-frontend-updated
 
 jobs:
   build-and-push:
