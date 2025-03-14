@@ -7,7 +7,7 @@ You can build the image yourself or use the pre-built image from the ghcr.io reg
 ### Pull the container image
 Pull the container image from the ghcr.io registry:
 ```bash
-docker pull ghcr.io/open-park-project/opp-nginx:latest
+docker pull ghcr.io/openparkproject/opp-nginx:latest
 ```
 
 ### Build the container image
