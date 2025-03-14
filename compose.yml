@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  opp-nginx:
+    image: opp-nginx
+    ports:
+      - "80:80"
+    # depends_on:
+    #   - opp-backend-1
+    #   - opp-backend-2
+    #   - opp-backend-3
+    networks:
+      - opp-network
+
+  # opp-backend-1:
+  #   image: opp-backend
+  #   container_name: opp-backend-1
+
+  # opp-backend-2:
+  #   image: opp-backend
+  #   container_name: opp-backend-2
+
+  # opp-backend-3:
+  #   image: opp-backend
+  #   container_name: opp-backend-3
