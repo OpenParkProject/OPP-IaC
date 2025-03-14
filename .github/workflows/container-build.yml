@@ -24,6 +24,6 @@ jobs:
       - name: Build and push Container image
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: Containerfile
           push: true
           tags: ghcr.io/openparkproject/opp-nginx:latest
