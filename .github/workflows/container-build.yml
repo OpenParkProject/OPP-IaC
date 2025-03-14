@@ -1,16 +1,16 @@
-name: Build and Publish nginx Container Image
+name: Build and Publish Image
 
 on:
   push:
     branches: [main]
-  # Trigger workflow from external sources
+  # Triggered by subsystems worflows
   repository_dispatch:
-    types: [frontend-updated]
+    types: 
+      - OPP-frontend-updated
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -25,5 +25,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: Containerfile
           push: true
           tags: ghcr.io/openparkproject/opp-nginx:latest
