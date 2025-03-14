@@ -3,29 +3,13 @@ name: Build and Publish nginx Container Image
 on:
   push:
     branches: [main]
-  workflow_run:
-    # Triggered by subsystem worflows
-    workflows: ["Build Frontend"]
-    types:
-    - completed
-    branches: [main]
+  # Triggered by subsystems worflows
+  repository_dispatch:
+      types: [frontend-updated]
 
 jobs:
-  check-status:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_run'
-    steps:
-      - name: Check triggering workflow status
-        run: |
-          if [[ "${{ github.event.workflow_run.conclusion }}" != "success" ]]; then
-            echo "Previous workflow failed. Exiting..."
-            exit 1
-          fi
-
   build-and-push:
     runs-on: ubuntu-latest
-    needs: check-status
-    if: always() && (github.event_name == 'push' || (github.event_name == 'workflow_run' && needs.check-status.result == 'success'))
     steps:
       - uses: actions/checkout@v4
 
