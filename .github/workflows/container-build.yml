@@ -5,7 +5,7 @@ on:
     branches: [main]
   # Triggered by subsystems worflows
   repository_dispatch:
-      types: [frontend-updated]
+    types: [trigger-iac]
 
 jobs:
   build-and-push:
