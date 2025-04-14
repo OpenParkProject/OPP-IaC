@@ -1,25 +1,52 @@
-version: '3'
-
 services:
   opp-nginx:
-    image: opp-nginx
+    image: ghcr.io/openparkproject/opp-nginx:latest
+    build:
+      context: .
+      dockerfile: Containerfile
+    container_name: opp-nginx
     ports:
-      - "80:80"
-    # depends_on:
-    #   - opp-backend-1
-    #   - opp-backend-2
-    #   - opp-backend-3
+      - "${NGINX_PORT:-80}:80"
+    depends_on:
+      - opp-backend
     networks:
       - opp-network
+    env_file:
+      - .env
 
-  # opp-backend-1:
-  #   image: opp-backend
-  #   container_name: opp-backend-1
+  opp-backend:
+    image: ghcr.io/openparkproject/opp-backend:latest
+    container_name: opp-backend
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    depends_on:
+      opp-db:
+        condition: service_healthy
+    networks:
+      - opp-network
+    env_file:
+      - .env
 
-  # opp-backend-2:
-  #   image: opp-backend
-  #   container_name: opp-backend-2
+  opp-db:
+    image: postgres:latest
+    container_name: opp-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    env_file:
+      - .env
 
-  # opp-backend-3:
-  #   image: opp-backend
-  #   container_name: opp-backend-3
+volumes:
+  postgres_data:
+    driver: local
+
+networks: 
+  opp-network:
+    driver: bridge
