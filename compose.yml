@@ -9,44 +9,95 @@ services:
       - "${NGINX_PORT:-80}:80"
     depends_on:
       - opp-backend
+      - opp-auth
     networks:
-      - opp-network
+      backend-network:
+        aliases:
+          - openpark.com
+      auth-network:
+        aliases:
+          - openpark.com
     env_file:
       - .env
 
   opp-backend:
     image: ghcr.io/openparkproject/opp-backend:latest
     container_name: opp-backend
-    ports:
-      - "${BACKEND_PORT:-8080}:8080"
     depends_on:
-      opp-db:
+      opp-backend-db:
+        condition: service_healthy
+      opp-auth:
         condition: service_healthy
     networks:
-      - opp-network
+      - backend-network
     env_file:
       - .env
 
-  opp-db:
+  opp-backend-db:
     image: postgres:latest
-    container_name: opp-db
-    ports:
-      - "5432:5432"
+    container_name: opp-backend-db
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - opp-postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${POSTGRES_BACKEND_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_BACKEND_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_BACKEND_DB}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
       timeout: 5s
       retries: 5
       start_period: 10s
+    networks:
+      - backend-network
+    env_file:
+      - .env
+
+  opp-auth:
+    image: ghcr.io/openparkproject/opp-auth:latest
+    container_name: opp-auth
+    depends_on:
+      opp-auth-db:
+        condition: service_healthy
+    networks:
+      - auth-network
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8090"]
+      interval: 2s
+      timeout: 2s
+      retries: 5
+      start_period: 5s
+
+  opp-auth-db:
+    image: postgres:latest
+    container_name: opp-auth-db
+    volumes:
+      - opp-auth-postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${POSTGRES_AUTH_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_AUTH_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_AUTH_DB}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - auth-network
     env_file:
       - .env
 
 volumes:
-  postgres_data:
+  opp-postgres_data:
+    driver: local
+  opp-auth-postgres_data:
     driver: local
 
 networks: 
-  opp-network:
+  backend-network:
+    driver: bridge
+  auth-network:
     driver: bridge
