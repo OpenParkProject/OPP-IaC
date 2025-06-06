@@ -34,7 +34,7 @@ services:
       - .env
 
   opp-backend-db:
-    image: postgres:latest
+    image: postgis/postgis:latest
     container_name: opp-backend-db
     volumes:
       - opp-postgres_data:/var/lib/postgresql/data
