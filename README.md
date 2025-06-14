@@ -15,3 +15,13 @@ Lastly, since the application does hostname verification, you need to execute th
 ```bash
 echo "127.0.0.1 openpark.com" | sudo tee -a /etc/hosts
 ```
+
+For the same reasons, if you want to allow external devices to connect to your local Open Park Project instance, you need to add the following line to your NetworkManager's dnsmasq configuration:
+```bash
+echo "address=/openpark.com/10.42.0.1" | sudo tee /etc/NetworkManager/dnsmasq-shared.d/openpark.conf && sudo systemctl restart NetworkManager
+```
+You may also need to open ports 80, 443 in your firewall:
+```bash
+sudo firewall-cmd --add-port=80/tcp
+sudo firewall-cmd --add-port=443/tcp
+```
